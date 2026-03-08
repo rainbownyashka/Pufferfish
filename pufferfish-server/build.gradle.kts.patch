@@ -117,4 +117,19 @@
 +    dependsOn("applyAllServerPatches")
 +}
 +
++tasks.named<ProcessResources>("processResources") {
++    dependsOn(
++        "applyPaperServerFeaturePatches",
++        "applyPaperServerFilePatches",
++        "applyMinecraftResourcePatches",
++    )
++}
++
++tasks.named<JavaCompile>("compileLog4jPluginsJava") {
++    dependsOn(
++        "applyPaperServerFeaturePatches",
++        "applyPaperServerFilePatches",
++    )
++}
++
  val scanJarForBadCalls by tasks.registering(io.papermc.paperweight.tasks.ScanJarForBadCalls::class) {
