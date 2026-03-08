@@ -22,6 +22,11 @@ Date: 2026-03-08
 - Passive only.
 - No unload, quarantine, block, or punishment logic.
 - Intended as data source for later `OpenCreative` integration.
+- Exposes a server-backed API via `pufferfish-api`:
+  - `gg.pufferfish.pufferfish.metrics.PufferfishMetrics`
+  - `gg.pufferfish.pufferfish.metrics.WorldTickLoadService`
+  - `gg.pufferfish.pufferfish.metrics.WorldTickLoadSnapshot`
+- Adds `/pufferfish worldload [limit]` as a smoke/debug view over the same snapshots.
 
 ## Verification
 
