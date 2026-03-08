@@ -28,3 +28,4 @@ Date: 2026-03-08
 - Patch and utility added.
 - Full Gradle compile not finished yet in this session.
 - `gradlew` wrapper required LF normalization for `bash` execution on this machine.
+- Added repo-level `.gitattributes` with `eol=lf` to stop false WSL dirty state from CRLF-only working tree noise.
