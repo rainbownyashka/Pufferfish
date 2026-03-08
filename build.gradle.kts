@@ -44,7 +44,11 @@ subprojects {
         options.encoding = "UTF-8"
         options.release.set(21)
         options.isFork = true
-        options.compilerArgs.addAll(listOf("-Xlint:-deprecation", "-Xlint:-removal"))
+        options.compilerArgs.addAll(listOf("-Xlint:-deprecation", "-Xlint:-removal", "--add-modules=jdk.incubator.vector"))
+    }
+
+    tasks.withType<Javadoc>().configureEach {
+        (options as StandardJavadocDocletOptions).addStringOption("add-modules", "jdk.incubator.vector")
     }
 
     repositories {

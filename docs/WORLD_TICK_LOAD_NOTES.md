@@ -29,3 +29,10 @@ Date: 2026-03-08
 - Full Gradle compile not finished yet in this session.
 - `gradlew` wrapper required LF normalization for `bash` execution on this machine.
 - Added repo-level `.gitattributes` with `eol=lf` to stop false WSL dirty state from CRLF-only working tree noise.
+- Added explicit Gradle toolchain path for WSL Java 21:
+  - `org.gradle.java.installations.auto-detect=false`
+  - `org.gradle.java.installations.paths=/usr/lib/jvm/java-21-openjdk-amd64`
+- Build bootstrap fixes added for this fork:
+  - `--add-modules=jdk.incubator.vector` for all `JavaCompile` tasks
+  - Javadoc gets `add-modules=jdk.incubator.vector`
+  - Gradle HTTP connection/socket timeouts raised to `120000ms` for flaky JitPack fetches
