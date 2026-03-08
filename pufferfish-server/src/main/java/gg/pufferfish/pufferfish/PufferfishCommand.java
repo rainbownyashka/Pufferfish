@@ -93,13 +93,22 @@ public class PufferfishCommand extends Command {
             for (int index = 0; index < snapshots.size(); index++) {
                 final WorldTickLoadSnapshot snapshot = snapshots.get(index);
                 sender.sendMessage(prefix + String.format(
-                    "#%d %s [%s] avg100=%.3fms share100=%.2f%% max100=%.3fms samples=%d",
+                    "#%d %s [%s | key=%s | uid=%s] avg100=%.3fms share100=%.2f%% max100=%.3fms ent=%d be=%d chunks=%d/%d blockTicks=%d fluidTicks=%d chunkTasks=%d samples=%d",
                     index + 1,
                     snapshot.worldName(),
                     snapshot.dimensionKey(),
+                    snapshot.bukkitWorldKey(),
+                    snapshot.worldUid(),
                     snapshot.averageMs100(),
                     snapshot.averageShare100(),
                     snapshot.maxMs100(),
+                    snapshot.loadedEntityCount(),
+                    snapshot.blockEntityTickerCount(),
+                    snapshot.loadedChunkCount(),
+                    snapshot.tickingChunkCount(),
+                    snapshot.pendingBlockTickCount(),
+                    snapshot.pendingFluidTickCount(),
+                    snapshot.pendingChunkTaskCount(),
                     snapshot.samples()
                 ));
             }

@@ -36,12 +36,21 @@ public final class WorldTickLoadTrackerService implements WorldTickLoadService {
         return new WorldTickLoadSnapshot(
             snapshot.worldName(),
             snapshot.dimensionKey(),
+            snapshot.worldUid(),
+            snapshot.bukkitWorldKey(),
             snapshot.lastTickMs(),
             snapshot.averageMs20(),
             snapshot.averageMs100(),
             snapshot.averageShare20(),
             snapshot.averageShare100(),
             snapshot.maxMs100(),
+            snapshot.loadedEntityCount(),
+            snapshot.blockEntityTickerCount(),
+            snapshot.pendingBlockTickCount(),
+            snapshot.pendingFluidTickCount(),
+            snapshot.loadedChunkCount(),
+            snapshot.tickingChunkCount(),
+            snapshot.pendingChunkTaskCount(),
             snapshot.samples(),
             snapshot.lastSeenTick()
         );

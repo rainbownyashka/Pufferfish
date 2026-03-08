@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Sun, 8 Mar 2026 20:25:00 +0700
+Subject: [PATCH] Expose world tick load counters
+
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 838916b..c9e3588 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -2484,6 +2484,34 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+         );
+     }
+ 
++    public int pufferfish$getLoadedEntityCount() {
++        return this.moonrise$getEntityLookup().getEntityCount();
++    }
++
++    public int pufferfish$getBlockEntityTickerCount() {
++        return this.blockEntityTickers.size();
++    }
++
++    public long pufferfish$getPendingBlockTickCount() {
++        return this.getBlockTicks().count();
++    }
++
++    public long pufferfish$getPendingFluidTickCount() {
++        return this.getFluidTicks().count();
++    }
++
++    public int pufferfish$getLoadedChunkCount() {
++        return this.moonrise$getLoadedChunks().size();
++    }
++
++    public int pufferfish$getTickingChunkCount() {
++        return this.moonrise$getTickingChunks().size();
++    }
++
++    public int pufferfish$getPendingChunkTaskCount() {
++        return this.getChunkSource().getPendingTasksCount();
++    }
++
+     private static <T> String getTypeCount(Iterable<T> objects, Function<T, String> typeGetter) {
+         try {
+             Object2IntOpenHashMap<String> map = new Object2IntOpenHashMap<>();

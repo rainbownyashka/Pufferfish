@@ -11,11 +11,20 @@ Date: 2026-03-08
 
 - Measures wall-clock time spent in each `ServerLevel.tick(...)` during `MinecraftServer.tickChildren(...)`.
 - Stores passive per-world snapshots:
+  - world UUID
+  - Bukkit world key
   - last tick ms
   - average ms over 20 samples
   - average ms over 100 samples
   - average share of total world-tick time over 20/100 samples
   - max ms over the last 100 samples
+  - loaded entities
+  - ticking block entities
+  - pending block ticks
+  - pending fluid ticks
+  - loaded chunks
+  - ticking chunks
+  - pending chunk tasks
 
 ## Scope
 

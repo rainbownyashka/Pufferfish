@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import org.bukkit.World;
 
@@ -35,10 +36,25 @@ public final class WorldTickLoadTracker {
         final String dimensionKey = level.dimension().location().toString();
         final World bukkitWorld = level.getWorld();
         final String worldName = bukkitWorld != null ? bukkitWorld.getName() : dimensionKey;
+        final UUID worldUid = bukkitWorld != null ? bukkitWorld.getUID() : null;
+        final String bukkitWorldKey = bukkitWorld != null ? bukkitWorld.getKey().toString() : dimensionKey;
 
         final CurrentTickWorldSample previous = this.currentTickSamples.put(
             dimensionKey,
-            new CurrentTickWorldSample(worldName, dimensionKey, Math.max(0L, durationNanos))
+            new CurrentTickWorldSample(
+                worldName,
+                dimensionKey,
+                worldUid,
+                bukkitWorldKey,
+                Math.max(0L, durationNanos),
+                level.pufferfish$getLoadedEntityCount(),
+                level.pufferfish$getBlockEntityTickerCount(),
+                level.pufferfish$getPendingBlockTickCount(),
+                level.pufferfish$getPendingFluidTickCount(),
+                level.pufferfish$getLoadedChunkCount(),
+                level.pufferfish$getTickingChunkCount(),
+                level.pufferfish$getPendingChunkTaskCount()
+            )
         );
         if (previous != null) {
             this.currentTickTotalNanos -= previous.durationNanos();
@@ -55,7 +71,7 @@ public final class WorldTickLoadTracker {
         for (final CurrentTickWorldSample sample : this.currentTickSamples.values()) {
             this.statsByDimension
                 .computeIfAbsent(sample.dimensionKey(), ignored -> new WorldStats(sample.worldName(), sample.dimensionKey()))
-                .record(sample.worldName(), sample.durationNanos(), totalNanos, this.currentServerTick);
+                .record(sample, totalNanos, this.currentServerTick);
         }
 
         this.statsByDimension.values().removeIf(stats -> this.currentServerTick - stats.lastSeenTick > STALE_TICK_TTL);
@@ -86,18 +102,40 @@ public final class WorldTickLoadTracker {
     public record WorldLoadSnapshot(
         String worldName,
         String dimensionKey,
+        UUID worldUid,
+        String bukkitWorldKey,
         double lastTickMs,
         double averageMs20,
         double averageMs100,
         double averageShare20,
         double averageShare100,
         double maxMs100,
+        int loadedEntityCount,
+        int blockEntityTickerCount,
+        long pendingBlockTickCount,
+        long pendingFluidTickCount,
+        int loadedChunkCount,
+        int tickingChunkCount,
+        int pendingChunkTaskCount,
         int samples,
         int lastSeenTick
     ) {
     }
 
-    private record CurrentTickWorldSample(String worldName, String dimensionKey, long durationNanos) {
+    private record CurrentTickWorldSample(
+        String worldName,
+        String dimensionKey,
+        UUID worldUid,
+        String bukkitWorldKey,
+        long durationNanos,
+        int loadedEntityCount,
+        int blockEntityTickerCount,
+        long pendingBlockTickCount,
+        long pendingFluidTickCount,
+        int loadedChunkCount,
+        int tickingChunkCount,
+        int pendingChunkTaskCount
+    ) {
     }
 
     private static final class WorldStats {
@@ -108,7 +146,16 @@ public final class WorldTickLoadTracker {
         private final RollingDoubleWindow share100 = new RollingDoubleWindow(LONG_WINDOW);
 
         private String worldName;
+        private UUID worldUid;
+        private String bukkitWorldKey;
         private long lastTickNanos;
+        private int loadedEntityCount;
+        private int blockEntityTickerCount;
+        private long pendingBlockTickCount;
+        private long pendingFluidTickCount;
+        private int loadedChunkCount;
+        private int tickingChunkCount;
+        private int pendingChunkTaskCount;
         private int lastSeenTick;
 
         private WorldStats(final String worldName, final String dimensionKey) {
@@ -116,13 +163,22 @@ public final class WorldTickLoadTracker {
             this.dimensionKey = dimensionKey;
         }
 
-        private void record(final String latestWorldName, final long worldTickNanos, final long totalWorldNanos, final int serverTick) {
-            this.worldName = latestWorldName;
-            this.lastTickNanos = worldTickNanos;
+        private void record(final CurrentTickWorldSample sample, final long totalWorldNanos, final int serverTick) {
+            this.worldName = sample.worldName();
+            this.worldUid = sample.worldUid();
+            this.bukkitWorldKey = sample.bukkitWorldKey();
+            this.lastTickNanos = sample.durationNanos();
+            this.loadedEntityCount = sample.loadedEntityCount();
+            this.blockEntityTickerCount = sample.blockEntityTickerCount();
+            this.pendingBlockTickCount = sample.pendingBlockTickCount();
+            this.pendingFluidTickCount = sample.pendingFluidTickCount();
+            this.loadedChunkCount = sample.loadedChunkCount();
+            this.tickingChunkCount = sample.tickingChunkCount();
+            this.pendingChunkTaskCount = sample.pendingChunkTaskCount();
             this.lastSeenTick = serverTick;
-            this.nanos20.add(worldTickNanos);
-            this.nanos100.add(worldTickNanos);
-            final double share = (double) worldTickNanos * 100.0D / (double) Math.max(1L, totalWorldNanos);
+            this.nanos20.add(sample.durationNanos());
+            this.nanos100.add(sample.durationNanos());
+            final double share = (double) sample.durationNanos() * 100.0D / (double) Math.max(1L, totalWorldNanos);
             this.share20.add(share);
             this.share100.add(share);
         }
@@ -131,12 +187,21 @@ public final class WorldTickLoadTracker {
             return new WorldLoadSnapshot(
                 this.worldName,
                 this.dimensionKey,
+                this.worldUid,
+                this.bukkitWorldKey,
                 nanosToMillis(this.lastTickNanos),
                 nanosToMillis(this.nanos20.average()),
                 nanosToMillis(this.nanos100.average()),
                 this.share20.average(),
                 this.share100.average(),
                 nanosToMillis(this.nanos100.max()),
+                this.loadedEntityCount,
+                this.blockEntityTickerCount,
+                this.pendingBlockTickCount,
+                this.pendingFluidTickCount,
+                this.loadedChunkCount,
+                this.tickingChunkCount,
+                this.pendingChunkTaskCount,
                 this.nanos100.size(),
                 this.lastSeenTick
             );
