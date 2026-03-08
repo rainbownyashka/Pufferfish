@@ -4,10 +4,10 @@ Date: Sun, 8 Mar 2026 13:35:00 +0700
 Subject: [PATCH] Track per-world tick load
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 90c4ea9338048015c997332e0a9ebc107834170f..1111111111111111111111111111111111111111 100644
+index b241aa9..26d1e15 100755
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -1121,6 +1121,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1789,6 +1789,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          }
  
          this.isIteratingOverLevels = true; // Paper - Throw exception on world create while being ticked
@@ -15,17 +15,15 @@ index 90c4ea9338048015c997332e0a9ebc107834170f..11111111111111111111111111111111
          for (ServerLevel serverLevel : this.getAllLevels()) {
              serverLevel.hasPhysicsEvent = org.bukkit.event.block.BlockPhysicsEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - BlockPhysicsEvent
              serverLevel.hasEntityMoveEvent = io.papermc.paper.event.entity.EntityMoveEvent.getHandlerList().getRegisteredListeners().length > 0; // Paper - Add EntityMoveEvent
-@@ -1140,13 +1141,22 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1803,6 +1804,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              }
              // CraftBukkit end */
  
--            profilerFiller.push("tick");
 +            final long worldTickStartNanos = System.nanoTime(); // Pufferfish - per-world tick load
-+            profilerFiller.push("tick");
+             profilerFiller.push("tick");
  
              try {
-                 serverLevel.tick(hasTimeLeft);
-             } catch (Throwable var7) {
+@@ -1811,6 +1813,11 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                  CrashReport crashReport = CrashReport.forThrowable(var7, "Exception ticking world");
                  serverLevel.fillReportDetails(crashReport);
                  throw new ReportedException(crashReport);
@@ -37,12 +35,10 @@ index 90c4ea9338048015c997332e0a9ebc107834170f..11111111111111111111111111111111
              }
  
              profilerFiller.pop();
-@@ -1154,7 +1164,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
-             profilerFiller.pop();
+@@ -1818,6 +1825,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
              serverLevel.explosionDensityCache.clear(); // Paper - Optimize explosions
          }
--        this.isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
-+        this.isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
+         this.isIteratingOverLevels = false; // Paper - Throw exception on world create while being ticked
 +        gg.pufferfish.pufferfish.util.WorldTickLoadTracker.INSTANCE.finishTick(); // Pufferfish - per-world tick load
  
          profilerFiller.popPush("connection");

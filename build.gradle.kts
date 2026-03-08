@@ -52,6 +52,7 @@ subprojects {
     }
 
     repositories {
+        maven(rootProject.layout.projectDirectory.dir("local-maven-repo"))
         mavenCentral()
         maven(paperMavenPublicUrl)
         maven("https://jitpack.io")

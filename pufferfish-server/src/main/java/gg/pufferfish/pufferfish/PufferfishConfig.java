@@ -12,7 +12,6 @@ import net.minecraft.world.entity.EntityType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
-import gg.pufferfish.pufferfish.flare.FlareCommand;
 import net.minecraft.server.MinecraftServer;
 import org.apache.logging.log4j.Level;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import org.simpleyaml.configuration.comments.CommentType;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
-import org.bukkit.command.SimpleCommandMap;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -277,15 +275,6 @@ public class PufferfishConfig {
     public static String accessToken;
     private static void airplaneWebServices() {
         accessToken = getString("web-services.token", "");
-        // todo lookup token (off-thread) and let users know if their token is valid
-        if (accessToken.length() > 0) {
-            gg.pufferfish.pufferfish.flare.FlareSetup.init(); // Pufferfish
-            SimpleCommandMap commandMap = MinecraftServer.getServer().server.getCommandMap();
-            if (commandMap.getCommand("flare") == null) {
-                commandMap.register("flare", "Pufferfish", new FlareCommand());
-            }
-        }
-
         setComment("web-services", "Options for connecting to Pufferfish/Airplane's online utilities");
 
     }

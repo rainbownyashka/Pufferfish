@@ -25,7 +25,10 @@
 -val log4jPlugins = sourceSets.create("log4jPlugins")
 +sourceSets {
 +    main {
-+        java { srcDir("../paper-server/src/main/java") }
++        java {
++            srcDir("../paper-server/src/main/java")
++            exclude("gg/pufferfish/pufferfish/flare/**")
++        }
 +        resources { srcDir("../paper-server/src/main/resources") }
 +    }
 +    test {
@@ -56,12 +59,10 @@
  
 +    // Pufferfish start - config
 +    implementation("org.yaml:snakeyaml:1.32")
-+    implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
++    implementation("me.carleslc:Simple-Yaml:1.8.4") {
 +        exclude(group="org.yaml", module="snakeyaml")
 +    }
 +    // Pufferfish end
-+    implementation("com.github.technove:Flare:34637f3f87") // Pufferfish - flare
-+
      testImplementation("io.github.classgraph:classgraph:4.8.179") // For mob goal test
      testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
      testImplementation("org.junit.platform:junit-platform-suite-engine:1.12.2")
@@ -99,7 +100,7 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
-@@ -263,7 +_,7 @@
+@@ -263,7 +_,11 @@
      jvmArgumentProviders.add(provider)
  }
  
@@ -108,3 +109,12 @@
  idea {
      module {
          generatedSourceDirs.add(generatedDir.toFile())
+@@ -266,6 +_,10 @@
+     options.forkOptions.memoryMaximumSize = "1G"
+ }
+ 
++tasks.named<JavaCompile>("compileJava") {
++    dependsOn("applyAllServerPatches")
++}
++
+ val scanJarForBadCalls by tasks.registering(io.papermc.paperweight.tasks.ScanJarForBadCalls::class) {
